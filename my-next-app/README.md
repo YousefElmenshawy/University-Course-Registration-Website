@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RegIx — University Course registration (Next.js + TypeScript)
 
-## Getting Started
+A small Next.js (App Router) project for a university course registration UI. It is written in TypeScript and uses the `src/app` structure with React server and client components.
 
-First, run the development server:
+## Quick start
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Install dependencies
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   npm install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. Run the dev server
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+3. Open the app
 
-To learn more about Next.js, take a look at the following resources:
+   [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Useful scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — start development server
+- `npm run build` — build for production
+- `npm run start` — start the production server after build
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Basic authentication UI (login/signup) and a protected area
+- Component-based UI (Navbar, Button, InputForm, Auth card, Logo)
+- App Router layout structure with nested protected routes
+- Simple database client helper in `src/lib` (integration stub)
+- Static assets in `public/` (logo.svg, favicon.ico)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Where to look
+
+- `src/app/` — application routes and layouts (App Router)
+  - `src/app/page.tsx` — main public landing / auth page
+  - `src/app/protected/` — protected area routes and nested layouts
+- `src/components/` — reusable UI components (Navbar, Button, InputForm, Auth, Logo, etc.)
+- `public/` — static assets (logo.svg, favicon.ico, images)
+- `src/lib/databaseClient.ts` — simple database client helper (if present)
+- `next.config.ts`, `tsconfig.json`, `package.json` — project configuration
+
+
+## TODO / Roadmap (short)
+- Implement course catalog, registration, and schedule flows
+- Add tests and linting rules
+
+## Contributing / Contact
+
+If you want changes or find issues, open an issue or reach out in the project tracker.
