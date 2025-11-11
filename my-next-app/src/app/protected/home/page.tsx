@@ -1,11 +1,53 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);// to retrieve authentication token
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [studentName, setStudentName] = useState("Student"); // You can fetch from auth/database
+  const [studentName, setStudentName] = useState("Student"); // fetch from auth/database
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchProfile = async () => {
 
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) {
+        console.error("No access token, user not authenticated");
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch("/api/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        type ProfileResponse = { data?: { name?: string }; error?: string };
+
+        if (!res.ok) {
+          console.error(`Failed to load profile (status: ${res.status})`);
+          return;
+        }
+
+        const result: ProfileResponse = await res.json();
+
+        if (result.data?.name) {
+          setStudentName(result.data.name);
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  // also update time every second
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -17,30 +59,6 @@ export default function Home() {
     if (hour < 18) return "Good Afternoon";
     return "Good Evening";
   };
-
-  const quickLinks = [
-    {
-      title: "Course Catalog",
-      description: "Browse available courses",
-      href: "/protected/CourseCatalog",
-      icon: "📚",
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      title: "Register",
-      description: "Add or drop courses",
-      href: "/protected/Register",
-      icon: "✏️",
-      color: "from-green-500 to-green-600",
-    },
-    {
-      title: "My Schedule",
-      description: "View your class schedule",
-      href: "/protected/Schedule",
-      icon: "📅",
-      color: "from-purple-500 to-purple-600",
-    }
-  ];
 
   const upcomingClasses = [
     { name: "Computer Science 101", time: "10:00 AM", room: "Room 305" },
@@ -58,26 +76,26 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-          {/*  Greeting Section for Students */}
+          {/* Greeting Section */}
           <div className="mb-12">
             <div className="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
               <div className="relative z-10">
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-                  {getGreeting()}, {studentName}! 👋
+                  {loading ? "Loading..." : `${getGreeting()}, ${studentName}! 👋`}
                 </h1>
                 <p className="text-gray-600 text-lg">
-                  {currentTime.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
+                  {currentTime.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </p>
                 <p className="text-2xl font-semibold text-blue-600 mt-2">
-                  {currentTime.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
+                  {currentTime.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </p>
               </div>
@@ -92,7 +110,7 @@ export default function Home() {
             {/* Today's Classes */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Today's Classes</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Today&apos;s Classes</h2>
                 <Link href="/protected/Schedule" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                   View All →
                 </Link>
