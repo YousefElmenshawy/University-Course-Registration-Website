@@ -1,3 +1,5 @@
 
-Passowords.txt
+Passwords.txt
 *.xml
+.env.local
+.idea/

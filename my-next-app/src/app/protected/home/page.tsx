@@ -1,12 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../../lib/databaseClient"; // existing client
 
+
+/*
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );// to retrieve authentication token
+
+*/
+  //this was reduntant since we have a shared client in lib
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [studentName, setStudentName] = useState("Student"); // fetch from auth/database
