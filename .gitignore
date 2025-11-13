@@ -3,3 +3,6 @@ Passwords.txt
 *.xml
 .env.local
 .idea/
+/.idea
+*.xml
+Passowords.txt

@@ -78,123 +78,130 @@ export default function Home() {
   ];
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="min-h-screen bg-gray-100">
 
-          {/* Greeting Section */}
-          <div className="mb-12">
-            <div className="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
-              <div className="relative z-10">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-                  {loading ? "Loading..." : `${getGreeting()}, ${studentName}! 👋`}
-                </h1>
-                <p className="text-gray-600 text-lg">
-                  {currentTime.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-                <p className="text-2xl font-semibold text-blue-600 mt-2">
-                  {currentTime.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Academic Summary */}
+          <div className="bg-white border border-gray-300 rounded mb-6">
+            <div className="border-b border-gray-300 bg-gray-50 px-6 py-3">
+              <h2 className="text-lg font-bold text-gray-900">Academic Summary</h2>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="border-l-4 border-blue-600 pl-4">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide">Enrolled Courses</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">5</p>
+                  <p className="text-xs text-gray-500 mt-1">Current Semester</p>
+                </div>
+                <div className="border-l-4 border-green-600 pl-4">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide">Cumulative GPA</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">3.8</p>
+                  <p className="text-xs text-gray-500 mt-1">Out of 4.0</p>
+                </div>
+                <div className="border-l-4 border-purple-600 pl-4">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide">Credits Earned</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">45</p>
+                  <p className="text-xs text-gray-500 mt-1">Total Credits</p>
+                </div>
               </div>
             </div>
           </div>
 
-
-
-          {/*  Today's Classes & Announcements */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            {/* Today's Classes */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Today&apos;s Classes</h2>
-                <Link href="/protected/Schedule" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  View All →
+            {/* Today's Schedule */}
+            <div className="bg-white border border-gray-300 rounded">
+              <div className="border-b border-gray-300 bg-gray-50 px-6 py-3 flex items-center justify-between">
+                <h2 className="text-lg font-bold text-gray-900">Today's Schedule</h2>
+                <Link
+                    href="/protected/Schedule"
+                    className="text-sm text-blue-700 hover:text-blue-800 font-medium hover:underline"
+                >
+                  View Full Schedule →
                 </Link>
               </div>
-              <div className="space-y-4">
-                {upcomingClasses.map((classItem, index) => (
-                    <div
-                        key={index}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-transparent rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-shadow"
-                    >
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{classItem.name}</h3>
-                        <p className="text-sm text-gray-600">{classItem.room}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-blue-600">{classItem.time}</p>
-                      </div>
-                    </div>
-                ))}
+              <div className="p-6">
+                <table className="w-full">
+                  <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left text-xs font-semibold text-gray-700 uppercase tracking-wider pb-3">Course</th>
+                    <th className="text-left text-xs font-semibold text-gray-700 uppercase tracking-wider pb-3">Time</th>
+                    <th className="text-left text-xs font-semibold text-gray-700 uppercase tracking-wider pb-3">Location</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {upcomingClasses.map((classItem, index) => (
+                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-4 text-sm font-medium text-gray-900">{classItem.name}</td>
+                        <td className="py-4 text-sm text-gray-700">{classItem.time}</td>
+                        <td className="py-4 text-sm text-gray-600">{classItem.room}</td>
+                      </tr>
+                  ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
             {/* Announcements */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Announcements</h2>
-                <span className="px-3 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full">
-                3 New
+            <div className="bg-white border border-gray-300 rounded">
+              <div className="border-b border-gray-300 bg-gray-50 px-6 py-3 flex items-center justify-between">
+                <h2 className="text-lg font-bold text-gray-900">Announcements</h2>
+                <span className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded">
+                3 NEW
               </span>
               </div>
-              <div className="space-y-4">
-                {announcements.map((announcement, index) => (
-                    <div
-                        key={index}
-                        className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {announcement.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">{announcement.date}</p>
-                    </div>
-                ))}
+              <div className="p-6">
+                <div className="space-y-4">
+                  {announcements.map((announcement, index) => (
+                      <div
+                          key={index}
+                          className="border-b border-gray-200 pb-4 last:border-0 last:pb-0 hover:bg-gray-50 p-3 -m-3 rounded cursor-pointer"
+                      >
+                        <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                          {announcement.title}
+                        </h3>
+                        <p className="text-xs text-gray-500">{announcement.date}</p>
+                      </div>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <Link
+                      href="/announcements"
+                      className="text-sm text-blue-700 hover:text-blue-800 font-medium hover:underline"
+                  >
+                    View All Announcements →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Cards (dummy for now atleast) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">Enrolled Courses</p>
-                  <p className="text-4xl font-bold mt-2">5</p>
-                </div>
-                <div className="text-5xl opacity-50">📖</div>
-              </div>
+          {/* Quick Links */}
+          <div className="bg-white border border-gray-300 rounded mt-6">
+            <div className="border-b border-gray-300 bg-gray-50 px-6 py-3">
+              <h2 className="text-lg font-bold text-gray-900">Quick Links</h2>
             </div>
-
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100 text-sm">Current GPA</p>
-                  <p className="text-4xl font-bold mt-2">3.8</p>
-                </div>
-                <div className="text-5xl opacity-50">🎯</div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100 text-sm">Credits Earned</p>
-                  <p className="text-4xl font-bold mt-2">45</p>
-                </div>
-                <div className="text-5xl opacity-50">⭐</div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Link href="/registration" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                  <div className="text-2xl mb-2">📝</div>
+                  <p className="text-sm font-semibold text-gray-900">Course Registration</p>
+                </Link>
+                <Link href="/grades" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                  <div className="text-2xl mb-2">📊</div>
+                  <p className="text-sm font-semibold text-gray-900">View Grades</p>
+                </Link>
+                <Link href="/transcript" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                  <div className="text-2xl mb-2">📄</div>
+                  <p className="text-sm font-semibold text-gray-900">Transcript</p>
+                </Link>
+                <Link href="/account" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                  <div className="text-2xl mb-2">💳</div>
+                  <p className="text-sm font-semibold text-gray-900">Student Account</p>
+                </Link>
               </div>
             </div>
           </div>
-
         </div>
       </div>
   );
