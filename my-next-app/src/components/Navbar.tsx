@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./logo";
 import {useEffect, useState} from "react";
-
+import AI_Assistant, { ChatButton } from "./AI_Assitant";
 export default function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
@@ -140,7 +140,20 @@ export default function Navbar() {
                                 >
                                     {link.name}
                                 </Link>
+
                             ))}
+
+                            <AI_Assistant
+                                isOpen={isOpen}
+                                onClose={() => setIsOpen(false)}
+                                studentData={{
+                                    name: studentName,
+                                    enrolledCourses: ["CSCE 101", "MATH 202"],
+                                    gpa: 3.8,
+                                    credits: 45
+                                }}
+                            />
+                            {!isOpen && <ChatButton onClickAction={() => setIsOpen(true)} />}
                         </div>
 
                         {/* Mobile menu button */}
