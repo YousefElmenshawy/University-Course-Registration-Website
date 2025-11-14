@@ -14,7 +14,7 @@ export default function Navbar() {
     const links = [
         { name: "Home", href: "/protected/home" },
         { name: "Course Catalog", href: "/protected/CourseCatalog" },
-        { name: "Register (Add/Drop)", href: "/protected/Register" },
+        { name: "My Courses", href: "/protected/Register" },
         { name: "Schedule", href: "/protected/Schedule" },
     ];
     const [currentTime, setCurrentTime] = useState(new Date());
