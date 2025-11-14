@@ -23,6 +23,8 @@ export default function CourseCatalog() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -74,45 +76,106 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
     setShowOnlyAvailable(false)
   }
 
-  // Fetch courses from Supabase
-  useEffect(() => {
     const fetchCourses = async () => {
-      try {
-        setLoading(true)
-        
-        // Fetch all courses from your Supabase table
-        const { data, error } = await supabase
-          .from('Courses') 
-          .select('*') // Select all columns
-        
-        if (error) {
-          throw error
-        }
-        
-        // Set the fetched data to state
-        setCourses(data || [])
-        
-      } catch (err) { 
-        console.error('Error fetching courses:', err)
-        // Handle different error types
-        if (err instanceof Error) {
-          setError(err.message)
-        } else {
-          setError('Failed to load courses')
-        }
-      } finally {
-        setLoading(false)
+    try {
+      setLoading(true)
+      
+      const { data, error } = await supabase
+        .from('Courses') 
+        .select('*')
+      
+      if (error) {
+        throw error
       }
+      
+      setCourses(data || [])
+      
+    } catch (err) { 
+      console.error('Error fetching courses:', err)
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Failed to load courses')
+      }
+    } finally {
+      setLoading(false)
     }
+  }
 
+  // Now use it in useEffect
+  useEffect(() => {
     fetchCourses()
   }, [])
 
-  // COURSE REG TO BE IMPLEMENTED
-  const handleRegister = (courseId: number, courseName: string) => {
-    console.log(`Registering for course: ${courseName} (ID: ${courseId})`)
-    // Add your registration logic here
-  }
+  // Handle course registration
+ const handleRegister = async (courseId: number, courseName: string) => {
+    console.log(`Registering for course: ${courseName} (ID: ${courseId})`);
+
+    const course = courses.find(c => c.id === courseId);
+    const { data: { user } } = await supabase.auth.getUser();
+    const studentId = user?.id;
+
+    if (course && course.CapacityCurrent < course.CapacityMax) {
+      try {
+        // Update course capacity
+        const { error: courseError } = await supabase
+          .from('Courses')
+          .update({
+            CapacityCurrent: course.CapacityCurrent + 1,
+          })
+          .eq('id', courseId);
+
+        if (courseError) throw courseError;
+
+        // First, get the current enrolled_courses array
+        const { data: studentData, error: fetchError } = await supabase
+          .from('Student Profile')
+          .select('enrolled_courses')
+          .eq('id', studentId)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+         // stop execution if already enrolled
+        
+        if (studentData.enrolled_courses?.includes(String(courseId))) {
+        setErrorMessage(`You are already enrolled in the course: ${courseName}`);
+        setSuccessMessage(null);
+        return; // Stop execution if already enrolled
+      }
+
+
+        // Add the new courseId to the array
+        const updatedCourses = [...(studentData.enrolled_courses || []), courseId];
+
+        // Update the student's enrolled_courses
+        const { error: studentError } = await supabase
+          .from('Student Profile')
+          .update({
+            enrolled_courses: updatedCourses
+          })
+          .eq('id', studentId);
+
+        if (studentError) throw studentError;
+
+        setSuccessMessage(`Successfully registered for the course: ${courseName}`);
+        setErrorMessage(null);
+
+        // Re-fetch courses to update UI
+        fetchCourses();
+
+      } catch (err) {
+        console.error('Error registering for course:', err);
+        setErrorMessage('Failed to register for the course. Please try again.');
+        setSuccessMessage(null);
+      }
+    } else {
+      setErrorMessage('No available spots for this course');
+      setSuccessMessage(null);
+    }
+  };
+
+
 
   // WAITLIST TO BE IMPLEMENTED
   const handleWaitlist = (courseId: number, courseName: string) => {
@@ -143,9 +206,39 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
 
 
 
-  return (
+   return(
     <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div className="flex justify-between items-center">
+            <span className="mr-4">{successMessage}</span> {/* Added margin-right to create space */}
+            <button 
+              onClick={() => setSuccessMessage(null)}
+              className="text-green-700 hover:text-green-900 font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="flex justify-between items-center">
+            <span className="mr-4">{errorMessage}</span> {/* Added margin-right to create space */}
+            <button 
+              onClick={() => setErrorMessage(null)}
+              className="text-red-700 hover:text-red-900 font-bold"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
         {/* Header */}
         <div className="bg-white border border-gray-300 rounded mb-6 p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Course Catalog</h1>
@@ -170,7 +263,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
                   placeholder="Search by name, code, or instructor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent  text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
                 <svg 
                   className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" 
@@ -187,7 +280,6 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
                 </svg>
               </div>
             </div>
-
 
             {/* Major Filter */}
             <div>
@@ -280,7 +372,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
           </div>
         </div>
 
-        {/* Course Grid - Now using filteredCourses instead of courses */}
+        {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
             <div
@@ -381,7 +473,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
                   </div>
                 </div>
 
-                {/* Action Buttons - Always at bottom */}
+                {/* Action Buttons */}
                 <div className="pt-4 space-y-2 mt-auto">
                   {!isFull(course.CapacityCurrent, course.CapacityMax) ? (
                     <button
