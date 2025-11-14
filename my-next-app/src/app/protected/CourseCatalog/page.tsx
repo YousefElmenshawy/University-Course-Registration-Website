@@ -133,11 +133,27 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
         return; // Stop execution if already enrolled
       }
       try {
-        // Update course capacity
+        // Fetch the latest course capacity to avoid race conditions
+        const { data: latestCourse, error: fetchError } = await supabase
+          .from('Courses')
+          .select('CapacityCurrent, CapacityMax')
+          .eq('id', courseId)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Check if course is still available after fetching latest data
+        if (latestCourse.CapacityCurrent >= latestCourse.CapacityMax) {
+          setErrorMessage('Course is now full. Please try again or join the waitlist.');
+          setSuccessMessage(null);
+          return;
+        }
+        
+        // Update course capacity with latest current capacity
         const { error: courseError } = await supabase
           .from('Courses')
           .update({
-            CapacityCurrent: course.CapacityCurrent + 1,
+            CapacityCurrent: latestCourse.CapacityCurrent + 1,
           })
           .eq('id', courseId);
 
