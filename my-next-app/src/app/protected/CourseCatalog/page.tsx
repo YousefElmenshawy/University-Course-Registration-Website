@@ -178,11 +178,11 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
 
 
 
-  // WAITLIST TO BE IMPLEMENTED
+  // Waitlist handler
 const handleWaitlist = async (courseId: number, courseName: string) => {
   console.log(`Adding to waitlist for course: ${courseName} (ID: ${courseId})`);
   
-  setSuccessMessage(`Successfully added to waitlist for: ${courseName}`);
+  
 
   const course = courses.find(c => c.id === courseId);
   const { data: { user } } = await supabase.auth.getUser();
