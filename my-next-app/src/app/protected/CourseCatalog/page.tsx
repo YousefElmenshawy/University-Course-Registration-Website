@@ -116,18 +116,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
     const studentId = user?.id;
 
     if (course && course.CapacityCurrent < course.CapacityMax) {
-      try {
-        // Update course capacity
-        const { error: courseError } = await supabase
-          .from('Courses')
-          .update({
-            CapacityCurrent: course.CapacityCurrent + 1,
-          })
-          .eq('id', courseId);
-
-        if (courseError) throw courseError;
-
-        // First, get the current enrolled_courses array
+       // First, get the current enrolled_courses array
         const { data: studentData, error: fetchError } = await supabase
           .from('Student Profile')
           .select('enrolled_courses')
@@ -139,10 +128,22 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
          // stop execution if already enrolled
         
         if (studentData.enrolled_courses?.includes(String(courseId))) {
-        setErrorMessage(`You are already enrolled in the course: ${courseName}`);
+        setErrorMessage(`You are already enrolled in : ${courseName}`);
         setSuccessMessage(null);
         return; // Stop execution if already enrolled
       }
+      try {
+        // Update course capacity
+        const { error: courseError } = await supabase
+          .from('Courses')
+          .update({
+            CapacityCurrent: course.CapacityCurrent + 1,
+          })
+          .eq('id', courseId);
+
+        if (courseError) throw courseError;
+
+       
 
 
         // Add the new courseId to the array
@@ -158,7 +159,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
 
         if (studentError) throw studentError;
 
-        setSuccessMessage(`Successfully registered for the course: ${courseName}`);
+        setSuccessMessage(`Successfully registered : ${courseName}`);
         setErrorMessage(null);
 
         // Re-fetch courses to update UI
@@ -178,10 +179,88 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
 
 
   // WAITLIST TO BE IMPLEMENTED
-  const handleWaitlist = (courseId: number, courseName: string) => {
-    console.log(`Adding to waitlist for course: ${courseName} (ID: ${courseId})`)
-    // Add your waitlist logic here
+const handleWaitlist = async (courseId: number, courseName: string) => {
+  console.log(`Adding to waitlist for course: ${courseName} (ID: ${courseId})`);
+  
+  setSuccessMessage(`Successfully added to waitlist for: ${courseName}`);
+
+  const course = courses.find(c => c.id === courseId);
+  const { data: { user } } = await supabase.auth.getUser();
+  const studentId = user?.id;
+
+  if (!studentId) {
+    console.error("Student not logged in");
+    setErrorMessage("You must be logged in to join the waitlist.");
+    return;
   }
+
+  if (course && course.WaitlistCurrent < course.WaitlistMax) {
+    //Fetch student's current waitlisted courses
+      const { data: studentData, error: fetchError } = await supabase
+        .from('Student Profile')
+        .select('waitlisted_courses')
+        .eq('id', studentId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      console.log("Current waitlisted_courses: ", studentData.waitlisted_courses);
+
+      // Check if the student is already on the waitlist
+      if (studentData.waitlisted_courses?.includes(String(courseId))) {
+        setErrorMessage(`You are already on the waitlist for: ${courseName}`);
+        setSuccessMessage(null);
+        return; // Stop execution if already on the waitlist
+      }
+    try {
+      // Update course waitlist count
+      const { error: courseError } = await supabase
+        .from('Courses')
+        .update({
+          WaitlistCurrent: course.WaitlistCurrent + 1, // Increment waitlist
+        })
+        .eq('id', courseId);
+
+      if (courseError) throw courseError;
+
+      
+
+      // Add the new courseId to the waitlisted_courses array
+      const updatedWaitlist = [...(studentData.waitlisted_courses || []), String(courseId)];
+
+      console.log("Updated waitlisted_courses: ", updatedWaitlist);
+
+      // Step 5: Update the student's waitlisted_courses in the database
+      const { error: studentError } = await supabase
+        .from('Student Profile')
+        .update({
+          waitlisted_courses: updatedWaitlist, 
+        })
+        .eq('id', studentId);
+
+      if (studentError) throw studentError;
+
+      setSuccessMessage(`Successfully added to the waitlist for: ${courseName}`);
+      setErrorMessage(null);
+
+      // Re-fetch courses to update UI
+      fetchCourses(); 
+
+    } catch (err) {
+      console.error('Error adding to waitlist for course:', err);
+      setErrorMessage('Failed to add to waitlist. Please try again.');
+      setSuccessMessage(null);
+    }
+  } else {
+    setErrorMessage('No available waitlist spots for this course');
+    setSuccessMessage(null);
+  }
+};
+
+
+   
+
+  
 
   // Check if course is full
   const isFull = (current: number, max: number) => current >= max
