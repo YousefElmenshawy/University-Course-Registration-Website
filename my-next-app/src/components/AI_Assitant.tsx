@@ -7,14 +7,23 @@ interface Message {
     timestamp: Date;
 }
 
+interface Course {
+    id: number;
+    Name?: string;
+    Code?: string;
+    CourseID?: string;
+    CRN?: number;
+}
+
 interface AI_AssitantProps {
     isOpen: boolean;
     onClose: () => void;
     studentData?: {
         name: string;
         enrolledCourses: string[];
-        gpa: number;
-        credits: number;
+        gpa?: number;
+        credits?: number;
+        pastCourses?: Course[];
     };
 }
 
@@ -49,47 +58,31 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
         setIsLoading(true);
 
         try {
-            // Call Claude API (an existing advanced model)
-            const response = await fetch("https://api.anthropic.com/v1/messages", {                method: "POST",
+            // Call our API route which handles Gemini
+            const response = await fetch("/api/chat", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514",
-                    max_tokens: 1000,
-                    messages: [
-                        {
-                            role: "user",
-                            content: `You are a helpful university registration assistant for RegIx system. 
-              
-Student Information:
-- Name: ${studentData?.name || "Student"}
-- Current GPA: ${studentData?.gpa || "N/A"}
-- Credits Earned: ${studentData?.credits || "N/A"}
-- Enrolled Courses: ${studentData?.enrolledCourses?.join(", ") || "None"}
-
-Your role is to help students with:
-- Course selection and recommendations
-- Schedule planning and conflicts
-- Registration procedures
-- Academic requirements
-- General university questions
-
-Keep responses concise, friendly, and helpful. If you don't have specific information, acknowledge it and provide general guidance.
-
-Student Question: "${input}"`,
-                        },
-                    ],
+                    message: input,
+                    studentData: studentData
                 }),
             });
 
-            type ClaudeContent = { type: string; text?: string };
-            type ClaudeResponse = { content: ClaudeContent[] };
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error("API Error:", response.status, errorData);
+                throw new Error(errorData.details || `API error: ${response.status}`);
+            }
 
-            const data = await response.json() as ClaudeResponse;
+            type AIContent = { type: string; text?: string };
+            type AIResponse = { content: AIContent[] };
+
+            const data = await response.json() as AIResponse;
             const assistantContent = data.content
-                .filter((item: ClaudeContent) => item.type === "text")
-                .map((item: ClaudeContent) => item.text || "")
+                .filter((item: AIContent) => item.type === "text")
+                .map((item: AIContent) => item.text || "")
                 .join("\n");
 
             const assistantMessage: Message = {
