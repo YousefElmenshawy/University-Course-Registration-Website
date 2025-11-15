@@ -106,6 +106,45 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
   useEffect(() => {
     fetchCourses()
   }, [])
+// Checking Conflicts
+  const checkTimeConflict = (newCourse: Course, enrolledCourses: Course[]): Course | null => {
+    const newDays = parseDays(newCourse.TimeOfWeek);
+    const newTime = newCourse.Time;
+
+    for (const enrolled of enrolledCourses) {
+      const enrolledDays = parseDays(enrolled.TimeOfWeek);
+
+      // Check if any days overlap
+      const hasOverlappingDays = newDays.some(day => enrolledDays.includes(day));
+
+      // Check if times are the same
+      if (hasOverlappingDays && enrolled.Time === newTime) {
+        return enrolled;
+      }
+    }
+
+    return null; // No conflict
+  };
+
+// AUC days encoder decoder
+  const parseDays = (timeOfWeek: string): string[] => {
+    const dayMap: { [key: string]: string } = {
+      'U': 'Sunday',
+      'M': 'Monday',
+      'T': 'Tuesday',
+      'W': 'Wednesday',
+      'R': 'Thursday',
+      'F': 'Friday',
+      'S': 'Saturday'
+    };
+
+    const days: string[] = [];
+    for (let i = 0; i < timeOfWeek.length; i++) {
+      const day = dayMap[timeOfWeek[i]];
+      if (day) days.push(day);
+    }
+    return days;
+  };
 
   // Handle course registration
  const handleRegister = async (courseId: number, courseName: string) => {
@@ -148,7 +187,24 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
           setSuccessMessage(null);
           return;
         }
-        
+        // cheking Time Conflict
+
+        if(studentData.enrolled_courses && studentData.enrolled_courses.length > 0){
+          // Fetching  details of currently enrolled courses from database
+          const { data: enrolledCoursesData, error: enrolledCoursesError } = await supabase
+            .from('Courses')
+            .select('*')
+            .in('id', studentData.enrolled_courses);
+            if (enrolledCoursesError) throw enrolledCoursesError;
+
+          const conflictCourse = checkTimeConflict(course, enrolledCoursesData || []);
+          if (conflictCourse) {
+            setErrorMessage(`Time conflict detected with your enrolled course: ${conflictCourse.Name} (${conflictCourse.TimeOfWeek} | ${conflictCourse.Time})`);
+            setSuccessMessage(null);
+            return;
+          }
+        }
+
         // Update course capacity with latest current capacity
         const { error: courseError } = await supabase
           .from('Courses')
@@ -211,10 +267,10 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
   }
 
   if (course && course.WaitlistCurrent < course.WaitlistMax) {
-    //Fetch student's current waitlisted courses
+    //Fetch student's current waitlisted courses and enrolled courses
       const { data: studentData, error: fetchError } = await supabase
         .from('Student Profile')
-        .select('waitlisted_courses')
+        .select('waitlisted_courses, enrolled_courses')
         .eq('id', studentId)
         .single();
 
@@ -228,6 +284,28 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
         setSuccessMessage(null);
         return; // Stop execution if already on the waitlist
       }
+      //checking Time Conflicts
+
+    if (studentData.enrolled_courses && studentData.enrolled_courses.length > 0) {
+      // Fetch details of currently enrolled courses from database
+      const { data: enrolledCoursesData, error: enrolledCoursesError } = await supabase
+          .from('Courses')
+          .select('*')
+          .in('id', studentData.enrolled_courses);
+
+      if (enrolledCoursesError) throw enrolledCoursesError;
+
+      const conflictCourse = checkTimeConflict(course, enrolledCoursesData || []);
+      if (conflictCourse) {
+        setErrorMessage(
+            `Time conflict detected with your enrolled course: ${conflictCourse.Name} (${conflictCourse.TimeOfWeek} | ${conflictCourse.Time})`
+        );
+        setSuccessMessage(null);
+        return;
+      }
+    }
+
+
     try {
       // Update course waitlist count
       const { error: courseError } = await supabase
