@@ -112,7 +112,7 @@ export default function Home() {
             {/* Today's Schedule */}
             <div className="bg-white border border-gray-300 rounded">
               <div className="border-b border-gray-300 bg-gray-50 px-6 py-3 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-900">Today's Schedule</h2>
+                <h2 className="text-lg font-bold text-gray-900">Today&apos;s Schedule</h2>
                 <Link
                     href="/protected/Schedule"
                     className="text-sm text-blue-700 hover:text-blue-800 font-medium hover:underline"
@@ -183,19 +183,19 @@ export default function Home() {
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Link href="/registration" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                <Link href="/protected/CourseCatalog" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
                   <div className="text-2xl mb-2">📝</div>
                   <p className="text-sm font-semibold text-gray-900">Course Registration</p>
                 </Link>
-                <Link href="/grades" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                <Link href="/protected/home" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
                   <div className="text-2xl mb-2">📊</div>
                   <p className="text-sm font-semibold text-gray-900">View Grades</p>
                 </Link>
-                <Link href="/transcript" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                <Link href="/protected/home" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
                   <div className="text-2xl mb-2">📄</div>
                   <p className="text-sm font-semibold text-gray-900">Transcript</p>
                 </Link>
-                <Link href="/account" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
+                <Link href="/protected/home" className="border border-gray-300 rounded p-4 hover:bg-gray-50 hover:border-gray-400 transition-colors text-center">
                   <div className="text-2xl mb-2">💳</div>
                   <p className="text-sm font-semibold text-gray-900">Student Account</p>
                 </Link>

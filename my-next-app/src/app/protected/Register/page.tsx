@@ -56,9 +56,9 @@ export default function RegisterPage() {
       setCourses(coursesRes.data || [])
       setEnrolledIds((profile?.enrolled_courses as string[]) || [])
       setWaitlistedIds((profile?.waitlisted_courses as string[]) || [])
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e)
-      setError(e.message ?? 'Failed to load data.')
+      setError(e instanceof Error ? e.message : 'Failed to load data.')
     } finally {
       setLoading(false)
     }
