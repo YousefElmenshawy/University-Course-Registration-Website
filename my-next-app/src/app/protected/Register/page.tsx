@@ -45,7 +45,7 @@ export default function RegisterPage() {
       }
 
       const { data: profile, error: profErr } = await supabase
-        .from('Student Profile')
+        .from('User')
         .select('enrolled_courses, waitlisted_courses')
         .eq('id', user.id)
         .single()
@@ -86,7 +86,7 @@ export default function RegisterPage() {
 
       const nextEnrolled = enrolledIds.filter(id => id !== String(courseId))
       const { error: stuErr } = await supabase
-        .from('Student Profile')
+        .from('User')
         .update({ enrolled_courses: nextEnrolled })
         .eq('id', user.id)
       if (stuErr) throw stuErr
@@ -118,7 +118,7 @@ export default function RegisterPage() {
 
       const nextWait = waitlistedIds.filter(id => id !== String(courseId))
       const { error: stuErr } = await supabase
-        .from('Student Profile')
+        .from('User')
         .update({ waitlisted_courses: nextWait })
         .eq('id', user.id)
       if (stuErr) throw stuErr

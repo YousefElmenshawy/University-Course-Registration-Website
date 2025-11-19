@@ -56,7 +56,7 @@ export default function Schedule() {
 
         // Fetch student profile to get enrolled course IDs
         const { data: profile, error: profErr } = await supabase
-          .from('Student Profile')
+          .from('User')
           .select('enrolled_courses')
           .eq('id', user.id)
           .single()

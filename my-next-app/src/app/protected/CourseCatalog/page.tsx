@@ -157,7 +157,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
     if (course && course.CapacityCurrent < course.CapacityMax) {
        // First, get the current enrolled_courses array
         const { data: studentData, error: fetchError } = await supabase
-          .from('Student Profile')
+          .from('User')
           .select('enrolled_courses')
           .eq('id', studentId)
           .single();
@@ -223,7 +223,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
 
         // Update the student's enrolled_courses
         const { error: studentError } = await supabase
-          .from('Student Profile')
+          .from('User')
           .update({
             enrolled_courses: updatedCourses
           })
@@ -269,7 +269,7 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
   if (course && course.WaitlistCurrent < course.WaitlistMax) {
     //Fetch student's current waitlisted courses and enrolled courses
       const { data: studentData, error: fetchError } = await supabase
-        .from('Student Profile')
+        .from('User')
         .select('waitlisted_courses, enrolled_courses')
         .eq('id', studentId)
         .single();
@@ -326,7 +326,7 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
 
       // Step 5: Update the student's waitlisted_courses in the database
       const { error: studentError } = await supabase
-        .from('Student Profile')
+        .from('User')
         .update({
           waitlisted_courses: updatedWaitlist, 
         })
