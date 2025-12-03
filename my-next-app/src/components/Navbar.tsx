@@ -17,9 +17,16 @@ export default function Navbar() {
         { name: "My Courses", href: "/protected/Register" },
         { name: "Schedule", href: "/protected/Schedule" },
     ];
+
     const [currentTime, setCurrentTime] = useState(new Date());
     const [studentName, setStudentName] = useState("Student"); // fetch from auth/database
+    const [userRole, setUserRole] = useState<"Student" | "Admin" | "Professor">("Student"); // track user role
     const [loading, setLoading] = useState(true);
+
+    // Add admin link only if user is admin 
+    const allLinks = (userRole === "Admin") 
+        ? [...links, { name: "Admin Panel", href: "/protected/admin" }]
+        : links;
     useEffect(() => {
         const fetchProfile = async () => {
 
@@ -35,7 +42,7 @@ export default function Navbar() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                type ProfileResponse = { data?: { name?: string }; error?: string };
+                type ProfileResponse = { data?: { name?: string; Role?: "Student" | "Admin" | "Professor" }; error?: string };
 
                 if (!res.ok) {
                     console.error(`Failed to load profile (status: ${res.status})`);
@@ -46,6 +53,9 @@ export default function Navbar() {
 
                 if (result.data?.name) {
                     setStudentName(result.data.name);
+                }
+                if (result.data?.Role) {
+                    setUserRole(result.data.Role);
                 }
             } catch (err) {
                 console.error("Error fetching profile:", err);
@@ -128,7 +138,7 @@ export default function Navbar() {
 
                         {/* Desktop Navigation Links */}
                         <div className="hidden md:flex items-center">
-                            {links.map((link) => (
+                            {allLinks.map((link) => (
                                 <Link
                                     key={link.name}
                                     href={link.href}
@@ -210,7 +220,7 @@ export default function Navbar() {
                                     })}
                                 </div>
 
-                                {links.map((link) => (
+                                {allLinks.map((link) => (
                                     <Link
                                         key={link.name}
                                         href={link.href}
