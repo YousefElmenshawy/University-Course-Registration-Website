@@ -5,7 +5,6 @@ import { supabase } from '../../../lib/databaseClient'
 interface User {
   id: string
   name: string
-  email: string
   Role: "Student" | "Admin" | "Professor"
   enrolled_courses: number[] | null
   waitlisted_courses: string[] | null
