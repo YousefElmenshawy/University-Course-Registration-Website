@@ -1,6 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/databaseClient'
+import CourseForm from '../../../components/CourseForm'
+import CourseCard from '../../../components/CourseCard'
+import UserTable from '../../../components/UserTable'
 
 interface User {
   id: string
@@ -31,6 +34,21 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'users' | 'courses'>('users')
+  const [showAddCourseForm, setShowAddCourseForm] = useState(false)
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  const [newCourse, setNewCourse] = useState<Partial<Course>>({
+    Name: '',
+    CourseID: '',
+    CRN: 0,
+    Instructor: '',
+    TimeOfWeek: '',
+    Time: '',
+    Room: '',
+    CapacityMax: 0,
+    CapacityCurrent: 0,
+    WaitlistMax: 0,
+    WaitlistCurrent: 0,
+  })
 
   useEffect(() => {
     fetchData()
@@ -82,6 +100,131 @@ export default function AdminPanel() {
     } catch (err) {
       console.error('Error updating user role:', err)
       setError(err instanceof Error ? err.message : 'Failed to update user')
+    }
+  }
+
+  const deleteCourse = async (courseId: number) => {
+    if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('Courses')
+        .delete()
+        .eq('id', courseId)
+
+      if (error) throw error
+
+      // Update local state
+      setCourses(courses.filter(course => course.id !== courseId))
+    } catch (err) {
+      console.error('Error deleting course:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete course')
+    }
+  }
+
+  const addCourse = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    try {
+      const { data, error } = await supabase
+        .from('Courses')
+        .insert([{
+          Name: newCourse.Name,
+          CourseID: newCourse.CourseID,
+          CRN: newCourse.CRN,
+          Instructor: newCourse.Instructor,
+          TimeOfWeek: newCourse.TimeOfWeek,
+          Time: newCourse.Time,
+          Room: newCourse.Room,
+          CapacityMax: newCourse.CapacityMax,
+          CapacityCurrent: newCourse.CapacityCurrent || 0,
+          WaitlistMax: newCourse.WaitlistMax,
+          WaitlistCurrent: newCourse.WaitlistCurrent || 0,
+        }])
+        .select()
+
+      if (error) throw error
+
+      // Add to local state
+      if (data && data.length > 0) {
+        setCourses([...courses, data[0]])
+      }
+
+      // Reset form and close
+      setNewCourse({
+        Name: '',
+        CourseID: '',
+        CRN: 0,
+        Instructor: '',
+        TimeOfWeek: '',
+        Time: '',
+        Room: '',
+        CapacityMax: 0,
+        CapacityCurrent: 0,
+        WaitlistMax: 0,
+        WaitlistCurrent: 0,
+      })
+      setShowAddCourseForm(false)
+    } catch (err) {
+      console.error('Error adding course:', err)
+      setError(err instanceof Error ? err.message : 'Failed to add course')
+    }
+  }
+
+  const admitFromWaitlist = async (courseId: number) => {
+    // TODO: Implement logic to admit people from waitlist
+    // This will:
+    // 1. Find users on the waitlist for this course
+    // 2. Move them to enrolled_courses
+    // 3. Update CapacityCurrent and WaitlistCurrent
+    console.log('Admitting from waitlist for course:', courseId)
+    alert('Waitlist admission logic will be implemented soon!')
+  }
+
+  const startEditCourse = (course: Course) => {
+    setEditingCourse(course)
+    setShowAddCourseForm(false)
+  }
+
+  const cancelEdit = () => {
+    setEditingCourse(null)
+  }
+
+  const updateCourse = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingCourse) return
+
+    try {
+      const { error } = await supabase
+        .from('Courses')
+        .update({
+          Name: editingCourse.Name,
+          CourseID: editingCourse.CourseID,
+          CRN: editingCourse.CRN,
+          Instructor: editingCourse.Instructor,
+          TimeOfWeek: editingCourse.TimeOfWeek,
+          Time: editingCourse.Time,
+          Room: editingCourse.Room,
+          CapacityMax: editingCourse.CapacityMax,
+          CapacityCurrent: editingCourse.CapacityCurrent,
+          WaitlistMax: editingCourse.WaitlistMax,
+          WaitlistCurrent: editingCourse.WaitlistCurrent,
+        })
+        .eq('id', editingCourse.id)
+
+      if (error) throw error
+
+      // Update local state
+      setCourses(courses.map(course => 
+        course.id === editingCourse.id ? editingCourse : course
+      ))
+
+      setEditingCourse(null)
+    } catch (err) {
+      console.error('Error updating course:', err)
+      setError(err instanceof Error ? err.message : 'Failed to update course')
     }
   }
 
@@ -142,108 +285,66 @@ export default function AdminPanel() {
           {/* Tab Content */}
           <div className="p-6">
             {activeTab === 'users' && (
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">User Management</h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          User
-                        </th>
-                       
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Role
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Enrolled Courses
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {users.map((user) => (
-                        <tr key={user.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          </td>
-                          
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                user.Role === 'Admin'
-                                  ? 'bg-red-100 text-red-800'
-                                  : user.Role === 'Professor'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {user.Role}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {user.enrolled_courses?.length || 0} courses
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <select
-                              value={user.Role}
-                              onChange={(e) => changeUserRole(user.id, e.target.value as "Student" | "Admin" | "Professor")}
-                              className="text-sm border border-gray-300 rounded px-2 py-1 text-gray-900"
-                            >
-                              <option value="Student">Student</option>
-                              <option value="Professor">Professor</option>
-                              <option value="Admin">Admin</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <UserTable users={users} onRoleChange={changeUserRole} />
             )}
 
             {activeTab === 'courses' && (
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Course Management</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">Course Management</h2>
+                  <button
+                    onClick={() => setShowAddCourseForm(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    + Add Course
+                  </button>
+                </div>
+
+                {/* Add Course Form */}
+                {showAddCourseForm && (
+                  <CourseForm
+                    course={newCourse}
+                    onSubmit={addCourse}
+                    onChange={setNewCourse}
+                    onCancel={() => {
+                      setShowAddCourseForm(false)
+                      setNewCourse({
+                        Name: '',
+                        CourseID: '',
+                        CRN: 0,
+                        Instructor: '',
+                        TimeOfWeek: '',
+                        Time: '',
+                        Room: '',
+                        CapacityMax: 0,
+                        CapacityCurrent: 0,
+                        WaitlistMax: 0,
+                        WaitlistCurrent: 0,
+                      })
+                    }}
+                  />
+                )}
+
+                {/* Edit Course Form */}
+                {editingCourse && (
+                  <CourseForm
+                    course={editingCourse}
+                    onSubmit={updateCourse}
+                    onChange={(updatedCourse) => setEditingCourse(updatedCourse as Course)}
+                    onCancel={cancelEdit}
+                    isEdit
+                  />
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {courses.map((course) => (
-                    <div
+                    <CourseCard
                       key={course.id}
-                      className="bg-gray-50 border border-gray-200 rounded-lg p-4"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {course.Name}
-                      </h3>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div><strong>Course ID:</strong> {course.CourseID}</div>
-                        <div><strong>CRN:</strong> {course.CRN}</div>
-                        <div><strong>Instructor:</strong> {course.Instructor}</div>
-                        <div><strong>Schedule:</strong> {course.TimeOfWeek} | {course.Time}</div>
-                        <div><strong>Room:</strong> {course.Room}</div>
-                        <div>
-                          <strong>Enrollment:</strong> {course.CapacityCurrent} / {course.CapacityMax}
-                        </div>
-                        <div>
-                          <strong>Waitlist:</strong> {course.WaitlistCurrent} / {course.WaitlistMax}
-                        </div>
-                      </div>
-                      <div className="mt-3">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded ${
-                            course.CapacityCurrent >= course.CapacityMax
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}
-                        >
-                          {course.CapacityCurrent >= course.CapacityMax ? 'Full' : 'Available'}
-                        </span>
-                      </div>
-                    </div>
+                      course={course}
+                      onEdit={startEditCourse}
+                      onDelete={deleteCourse}
+                      onAdmitWaitlist={admitFromWaitlist}
+                    />
                   ))}
                 </div>
               </div>
