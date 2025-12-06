@@ -154,7 +154,7 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
     const { data: { user } } = await supabase.auth.getUser();
     const studentId = user?.id;
 
-    if (course && course.CapacityCurrent < course.CapacityMax) {
+    if (course && course.CapacityCurrent < course.CapacityMax && course.WaitlistCurrent<=0) {
        // First, get the current enrolled_courses array
         const { data: studentData, error: fetchError } = await supabase
           .from('User')
@@ -242,7 +242,8 @@ const matchesMajor = selectedMajor === '' || course.CourseID.substring(0, 4) ===
         setErrorMessage('Failed to register for the course. Please try again.');
         setSuccessMessage(null);
       }
-    } else {
+    } 
+    else {
       setErrorMessage('No available spots for this course');
       setSuccessMessage(null);
     }
