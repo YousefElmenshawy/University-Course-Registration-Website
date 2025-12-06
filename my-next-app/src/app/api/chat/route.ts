@@ -279,9 +279,23 @@ Waitlisted Courses:
 ${waitlistedCourses.length > 0 ? `  • ${waitlistedCoursesList}` : "  None"}
 ${availableCoursesInfo}
 
+IMPORTANT - Day Code Mapping (TimeOfWeek field):
+The TimeOfWeek field uses abbreviated day codes. Here's the mapping:
+• U = Sunday
+• M = Monday
+• T = Tuesday
+• W = Wednesday
+• R = Thursday (R for thursday)
+• UW = Sunday and Wednesday
+• MR = Monday and Thursday
+
+
+When discussing schedules, always translate these codes to full day names for the student.
+Example: "CSCE2010 is on TR at 10:00 AM" should be explained as "Tuesday and Thursday at 10:00 AM"
+
 Your role is to help students with:
 1. Course selection and personalized recommendations based on their academic history
-2. Schedule planning and avoiding time conflicts
+2. Schedule planning and avoiding time conflicts (use the day mapping above)
 3. Registration procedures and deadlines
 4. Understanding prerequisites and course sequences
 5. Academic progress tracking (GPA, credits, graduation requirements)
@@ -293,6 +307,7 @@ Guidelines:
 - Reference their completed courses when making recommendations
 - If they've taken CS courses, suggest advanced CS courses
 - If they've taken Math courses, suggest related Math or technical courses
+- When mentioning course times, always translate day codes (MR, TR, etc.) to readable days
 - Provide practical, actionable advice
 - Use emojis occasionally to be friendly (📚 🎓 💡 ✅)
 
