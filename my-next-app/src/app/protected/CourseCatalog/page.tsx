@@ -378,53 +378,51 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
     )
   }
 
-
-
-   return(
+  return (
     <div className="min-h-screen bg-gray-100">
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      
-      {/* Success/Error Messages */}
-      {successMessage && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          <div className="flex justify-between items-center">
-            <span className="mr-4">{successMessage}</span> {/* Added margin-right to create space */}
-            <button 
-              onClick={() => setSuccessMessage(null)}
-              className="text-green-700 hover:text-green-900 font-bold"
-            >
-              ×
-            </button>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="flex justify-between items-center">
+              <span className="mr-4">{successMessage}</span>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="text-green-700 hover:text-green-900 font-bold"
+              >
+                ×
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {errorMessage && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <div className="flex justify-between items-center">
-            <span className="mr-4">{errorMessage}</span> {/* Added margin-right to create space */}
-            <button 
-              onClick={() => setErrorMessage(null)}
-              className="text-red-700 hover:text-red-900 font-bold"
-            >
-              ×
-            </button>
+        {errorMessage && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="flex justify-between items-center">
+              <span className="mr-4">{errorMessage}</span>
+              <button
+                onClick={() => setErrorMessage(null)}
+                className="text-red-700 hover:text-red-900 font-bold"
+              >
+                ×
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Header */}
         <div className="bg-white border border-gray-300 rounded mb-6 p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Course Catalog</h1>
           <p className="text-sm text-gray-600">
-            Browse available courses for the current semester. Select a course to view details or register.
+            Browse available courses for the current semester. Select a course to view details or
+            register.
           </p>
         </div>
 
         {/* Search and Filter Section */}
         <div className="bg-white border border-gray-300 rounded mb-6 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Search & Filter Courses</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
             {/* Search Input */}
             <div>
@@ -436,20 +434,20 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
                   type="text"
                   placeholder="Search by name, code, or instructor..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
-                <svg 
-                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
               </div>
@@ -457,12 +455,10 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
 
             {/* Major Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subject
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
               <select
                 value={selectedMajor}
-                onChange={(e) => setSelectedMajor(e.target.value)}
+                onChange={e => setSelectedMajor(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               >
                 <option value="">All Subjects</option>
@@ -474,14 +470,12 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
               </select>
             </div>
 
-            {/* Time Filter */}
+            {/* Days Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Days
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Days</label>
               <select
                 value={selectedTimeOfWeek}
-                onChange={(e) => setSelectedTimeOfWeek(e.target.value)}
+                onChange={e => setSelectedTimeOfWeek(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               >
                 <option value="">All Days</option>
@@ -493,14 +487,12 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
               </select>
             </div>
 
-            {/* Time Slot Filter */}
+            {/* Time Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Time
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
               <select
                 value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
+                onChange={e => setSelectedTime(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               >
                 <option value="">All Times</option>
@@ -514,14 +506,12 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
 
             {/* Availability Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Availability
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
               <label className="flex items-center mt-3">
                 <input
                   type="checkbox"
                   checked={showOnlyAvailable}
-                  onChange={(e) => setShowOnlyAvailable(e.target.checked)}
+                  onChange={e => setShowOnlyAvailable(e.target.checked)}
                   className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">Show only available courses</span>
@@ -534,8 +524,12 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
             <p className="text-sm text-gray-600">
               Showing {filteredCourses.length} of {courses.length} courses
             </p>
-            
-            {(searchTerm || selectedMajor || selectedTimeOfWeek || selectedTime || showOnlyAvailable) && (
+
+            {(searchTerm ||
+              selectedMajor ||
+              selectedTimeOfWeek ||
+              selectedTime ||
+              showOnlyAvailable) && (
               <button
                 onClick={clearFilters}
                 className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded border border-gray-400 transition-colors"
@@ -548,144 +542,158 @@ const handleWaitlist = async (courseId: number, courseName: string) => {
 
         {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white border border-gray-300 rounded overflow-hidden hover:border-gray-400 transition-colors flex flex-col h-full"
-            >
-              {/* Course Header */}
-              <div className="border-b border-gray-300 bg-gray-50 px-6 py-4 h-20">
-                <div className="flex justify-between items-start h-full">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-gray-900 truncate">{course.Name}</h3>
-                    <p className="text-sm text-gray-600 mt-1 truncate">
-                      {course.CourseID} | CRN: {course.CRN} 
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0 ml-4">
-                    <span className={`px-3 py-1 text-xs font-bold uppercase ${
-                      isFull(course.CapacityCurrent, course.CapacityMax)
-                        ? 'bg-red-600 text-white'
-                        : 'bg-green-600 text-white'
-                    }`}>
-                      {isFull(course.CapacityCurrent, course.CapacityMax) ? 'FULL' : 'OPEN'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+          {filteredCourses.map(course => {
+            const isCourseFull = isFull(course.CapacityCurrent, course.CapacityMax)
+            const waitlistFull = isFull(course.WaitlistCurrent, course.WaitlistMax)
+            const hasWaitlist = course.WaitlistCurrent > 0
 
-              {/* Course Details */}
-              <div className="p-6 flex-1 flex flex-col">
-                <div className="flex-1 space-y-4">
-                  {/* Course Information */}
-                  <div className="min-h-[120px]">
-                    <table className="w-full text-sm">
-                      <tbody>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-2 pr-4 text-gray-600 font-semibold w-20">Schedule:</td>
-                          <td className="py-2 text-gray-900">{course.TimeOfWeek} | {course.Time}</td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-2 pr-4 text-gray-600 font-semibold">Location:</td>
-                          <td className="py-2 text-gray-900">{course.Room}</td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-2 pr-4 text-gray-600 font-semibold">Instructor:</td>
-                          <td className="py-2 text-gray-900">{course.Instructor}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+            // You can register directly ONLY if:
+            // - course is not full AND
+            // - there is currently NO waitlist
+            const canRegister = !isCourseFull && !hasWaitlist
 
-                  {/* Enrollment Status */}
-                  <div className="space-y-4 flex-1">
-                    {/* Capacity */}
-                    <div className="h-16">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600 font-semibold">Enrollment:</span>
-                        <span className="font-bold text-gray-900">
-                          {course.CapacityCurrent} / {course.CapacityMax}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 h-2 border border-gray-300 rounded">
-                        <div
-                          className={`h-full rounded ${
-                            isFull(course.CapacityCurrent, course.CapacityMax)
-                              ? 'bg-red-600'
-                              : 'bg-blue-600'
-                          }`}
-                          style={{
-                            width: `${(course.CapacityCurrent / course.CapacityMax) * 100}%`
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {course.CapacityMax - course.CapacityCurrent} seats available
+            return (
+              <div
+                key={course.id}
+                className="bg-white border border-gray-300 rounded overflow-hidden hover:border-gray-400 transition-colors flex flex-col h-full"
+              >
+                {/* Course Header */}
+                <div className="border-b border-gray-300 bg-gray-50 px-6 py-4 h-20">
+                  <div className="flex justify-between items-start h-full">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                        {course.Name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1 truncate">
+                        {course.CourseID} | CRN: {course.CRN}
                       </p>
                     </div>
-
-                    {/* Waitlist */}
-                    <div className="h-16">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600 font-semibold">Waitlist:</span>
-                        <span className="font-bold text-gray-900">
-                          {course.WaitlistCurrent} / {course.WaitlistMax}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 h-2 border border-gray-300 rounded">
-                        <div
-                          className="h-full bg-orange-500 rounded"
-                          style={{
-                            width: `${(course.WaitlistCurrent / course.WaitlistMax) * 100}%`
-                          }}
-                        ></div>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {course.WaitlistMax - course.WaitlistCurrent} waitlist spots remaining
-                      </p>
+                    <div className="flex-shrink-0 ml-4">
+                      <span
+                        className={`px-3 py-1 text-xs font-bold uppercase ${
+                          isCourseFull ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+                        }`}
+                      >
+                        {isCourseFull ? 'FULL' : 'OPEN'}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="pt-4 space-y-2 mt-auto">
-                  {!isFull(course.CapacityCurrent, course.CapacityMax) ? (
-                    <button
-                      onClick={() => handleRegister(course.id, course.Name)}
-                      className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 border border-blue-900 transition-colors text-sm rounded"
-                    >
-                      REGISTER FOR COURSE
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleWaitlist(course.id, course.Name)}
-                      disabled={isFull(course.WaitlistCurrent, course.WaitlistMax)}
-                      className={`w-full font-semibold py-2 px-4 border transition-colors text-sm rounded ${
-                        isFull(course.WaitlistCurrent, course.WaitlistMax)
-                          ? 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'
-                          : 'bg-orange-600 hover:bg-orange-700 text-white border-orange-800'
-                      }`}
-                    >
-                      {isFull(course.WaitlistCurrent, course.WaitlistMax)
-                        ? 'WAITLIST FULL'
-                        : 'JOIN WAITLIST'
-                      }
-                    </button>
-                  )}
+                {/* Course Details */}
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="flex-1 space-y-4">
+                    {/* Course Information */}
+                    <div className="min-h-[120px]">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          <tr className="border-b border-gray-200">
+                            <td className="py-2 pr-4 text-gray-600 font-semibold w-20">
+                              Schedule:
+                            </td>
+                            <td className="py-2 text-gray-900">
+                              {course.TimeOfWeek} | {course.Time}
+                            </td>
+                          </tr>
+                          <tr className="border-b border-gray-200">
+                            <td className="py-2 pr-4 text-gray-600 font-semibold">Location:</td>
+                            <td className="py-2 text-gray-900">{course.Room}</td>
+                          </tr>
+                          <tr className="border-b border-gray-200">
+                            <td className="py-2 pr-4 text-gray-600 font-semibold">Instructor:</td>
+                            <td className="py-2 text-gray-900">{course.Instructor}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 border border-gray-400 transition-colors text-sm rounded">
-                    VIEW COURSE DETAILS
-                  </button>
+                    {/* Enrollment Status */}
+                    <div className="space-y-4 flex-1">
+                      {/* Capacity */}
+                      <div className="h-16">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-gray-600 font-semibold">Enrollment:</span>
+                          <span className="font-bold text-gray-900">
+                            {course.CapacityCurrent} / {course.CapacityMax}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2 border border-gray-300 rounded">
+                          <div
+                            className={`h-full rounded ${
+                              isCourseFull ? 'bg-red-600' : 'bg-blue-600'
+                            }`}
+                            style={{
+                              width: `${(course.CapacityCurrent / course.CapacityMax) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {course.CapacityMax - course.CapacityCurrent} seats available
+                        </p>
+                      </div>
+
+                      {/* Waitlist */}
+                      <div className="h-16">
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-gray-600 font-semibold">Waitlist:</span>
+                          <span className="font-bold text-gray-900">
+                            {course.WaitlistCurrent} / {course.WaitlistMax}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2 border border-gray-300 rounded">
+                          <div
+                            className="h-full bg-orange-500 rounded"
+                            style={{
+                              width: `${(course.WaitlistCurrent / course.WaitlistMax) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {course.WaitlistMax - course.WaitlistCurrent} waitlist spots remaining
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 space-y-2 mt-auto">
+                    {canRegister ? (
+                      <button
+                        onClick={() => handleRegister(course.id, course.Name)}
+                        className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 border border-blue-900 transition-colors text-sm rounded"
+                      >
+                        REGISTER FOR COURSE
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleWaitlist(course.id, course.Name)}
+                        disabled={waitlistFull}
+                        className={`w-full font-semibold py-2 px-4 border transition-colors text-sm rounded ${
+                          waitlistFull
+                            ? 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed'
+                            : 'bg-orange-600 hover:bg-orange-700 text-white border-orange-800'
+                        }`}
+                      >
+                        {waitlistFull ? 'WAITLIST FULL' : 'JOIN WAITLIST'}
+                      </button>
+                    )}
+
+                    <button className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2 px-4 border border-gray-400 transition-colors text-sm rounded">
+                      VIEW COURSE DETAILS
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* No Results Message */}
         {filteredCourses.length === 0 && !loading && !error && (
           <div className="bg-white border border-gray-300 rounded p-12 text-center">
-            <p className="text-gray-500 text-lg mb-4">No courses found matching your criteria.</p>
+            <p className="text-gray-500 text-lg mb-4">
+              No courses found matching your criteria.
+            </p>
             <button
               onClick={clearFilters}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
