@@ -167,7 +167,7 @@ export async function POST(request: Request) {
 
                         studentData = {
                             name: profileData?.name || "Student",
-                            gpa: profileData?.gpa || undefined,
+                            gpa: profileData?.gpa ?? undefined,
                             credits: profileData?.credits_earned || 0,
                             enrolledCourses: enrolledCourseDetails, // Full course details
                             pastCourses: pastCourseDetails, // Full course details
@@ -233,7 +233,7 @@ export async function POST(request: Request) {
         });
 
         const name = studentData?.name || "Student";
-        const gpa = studentData?.gpa || "N/A";
+        const gpa = studentData?.gpa ?? "N/A";
         const credits = studentData?.credits || 0;
         const enrolledCourses = studentData?.enrolledCourses || [];
         const pastCourses = studentData?.pastCourses || [];
@@ -285,10 +285,12 @@ The TimeOfWeek field uses abbreviated day codes. Here's the mapping:
 • M = Monday
 • T = Tuesday
 • W = Wednesday
-• R = Thursday (R for thursday)
+• R = Thursday (R for thuRsday)
 • UW = Sunday and Wednesday
 • MR = Monday and Thursday
-
+• MW = Monday and Wednesday
+• TR = Tuesday and Thursday
+• WF = Wednesday and Friday
 
 When discussing schedules, always translate these codes to full day names for the student.
 Example: "CSCE2010 is on TR at 10:00 AM" should be explained as "Tuesday and Thursday at 10:00 AM"
@@ -357,7 +359,7 @@ Provide a helpful, personalized response:`;
         let mockResponse = "";
 
         if (msg.includes("gpa") || msg.includes("grade")) {
-            const gpa = studentData?.gpa || 4.0; // Use dummy data
+            const gpa = studentData?.gpa ?? 4.0; // Use dummy data
             mockResponse = `Your current GPA is ${gpa}. ${
                 gpa >= 3.5 ? "Excellent work! 🌟" : 
                 gpa >= 3.0 ? "Great job! 👍" : 
@@ -371,7 +373,7 @@ To maintain or improve your GPA:
 
 ⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;
         } else if (msg.includes("recommend") || msg.includes("suggest") || msg.includes("course")) {
-            const pastCourses = studentData?.pastCourses || [];
+            const pastCourses = studentData?.pastCourses ?? [];
             const completedList = pastCourses.length > 0
                 ? pastCourses.map((c: Course) => c.CourseID || c.Name).join(", ")
                 : "CSCE1010, CSCE2010, MATH1401";
@@ -394,8 +396,8 @@ To maintain or improve your GPA:
 ⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;
         } else if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
             const name = studentData?.name || "Student";
-            const gpa = studentData?.gpa || 3.8;
-            const credits = studentData?.credits || 45;
+            const gpa = studentData?.gpa ?? 3.8;
+            const credits = studentData?.credits ?? 45;
             const enrolled = studentData?.enrolledCourses || [];
             const enrolledText = enrolled.map((c: Course) => c.CourseID || c.Name).join(", ") || "No courses";
 
@@ -435,12 +437,19 @@ Visit the **Schedule** page to see your weekly calendar!
 
 ⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;
         } else if (msg.includes("completed") || msg.includes("past") || msg.includes("taken")) {
-            const pastCourses = studentData?.pastCourses || [
-                { id: 1, CourseID: "CSCE1010", Name: "Introduction to Programming", CRN: 10001 },
-                { id: 2, CourseID: "CSCE2010", Name: "Data Structures", CRN: 10002 },
-                { id: 3, CourseID: "MATH1401", Name: "Calculus I", CRN: 10003 }
-            ];
+            const pastCourses = studentData?.pastCourses || [];
+                if (pastCourses.length === 0) {
+                                mockResponse = `**You haven't completed any courses yet! 🎓**
 
+                As a new student, you're just getting started on your academic journey. I recommend:
+                • Starting with foundational courses (CSCE1010, PHYS 1011)
+                • Meeting with your academic advisor
+                • Exploring different course options in the catalog
+
+                ⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;
+            }
+            else
+            {
             const courseList = pastCourses.map((c, i) =>
                 `${i + 1}. ${c.CourseID} - ${c.Name}`
             ).join("\n");
@@ -451,12 +460,12 @@ ${courseList}
 
 These courses form the foundation of your degree! Based on what you've completed, I can recommend next steps.
 
-⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;
+⚠️ Note: AI assistant is temporarily unavailable. Using basic responses.`;}
         } else {
             // Default response for any other question
-            const gpa = studentData?.gpa || 3.8;
-            const credits = studentData?.credits || 45;
-            const enrolledCount = studentData?.enrolledCourses?.length || 3;
+            const gpa = studentData?.gpa ?? 3.8;
+            const credits = studentData?.credits ?? 0;
+            const enrolledCount = studentData?.enrolledCourses?.length || 0;
 
             mockResponse = `You asked: "${message}"
 
