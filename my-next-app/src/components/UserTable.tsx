@@ -4,7 +4,7 @@ interface User {
   id: string
   name: string
   Role: "Student" | "Admin" | "Professor"
-  enrolled_courses: number[] | null
+  enrolled_courses: string[] | null
   waitlisted_courses: string[] | null
 }
 

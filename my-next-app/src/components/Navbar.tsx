@@ -25,7 +25,7 @@ export default function Navbar() {
 
     // Add admin link only if user is admin 
     const allLinks = (userRole === "Admin") 
-        ? [...links, { name: "Admin Panel", href: "/protected/admin" }]
+        ? [ { name: "Admin Panel", href: "/protected/admin" }]  // no need to show other stuff for an admin
         : links;
     useEffect(() => {
         const fetchProfile = async () => {
