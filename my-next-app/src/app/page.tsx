@@ -27,20 +27,31 @@ export default function LoginPage() {
         if (!email.trim()) return setErrors({ email: "Email is required" });
         if (!password.trim()) return setErrors({ password: "Password is required" });
 
-        const { data, error } = await supabase.auth.signInWithPassword({   //authentication using supabase
+        const { data:authData, error:authError } = await supabase.auth.signInWithPassword({   //authentication using supabase
             email,
             password,
         });
+      
+        
 
-        if (error) {
-            console.error("Login error:", error.message);
+        if (authError) {
+            console.error("Login error:", authError.message);
             setErrors({ email: "Invalid email or password" });
             return;
         }
 
-        console.log("User logged in:", data.user);
+  const {data:profileData,error:Profileerror} = await supabase
+        .from("User")
+        .select("Role")
+        .eq("id",authData.user.id)
+        .single();
+            
+        //console.log("User logged in:", data.user);
         // redirect to home page
-       router.push("/protected/home");
+        if(profileData?.Role==="Admin")
+            router.push("/protected/admin");
+        else
+            router.push("/protected/home");
 
     };
 
