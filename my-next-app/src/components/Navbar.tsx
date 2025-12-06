@@ -20,7 +20,7 @@ export default function Navbar() {
 
     const [currentTime, setCurrentTime] = useState(new Date());
     const [studentName, setStudentName] = useState("Student"); // fetch from auth/database
-    const [userRole, setUserRole] = useState<"Student" | "Admin" | "Professor">("Student"); // track user role
+    const [userRole, setUserRole] = useState<"Student" | "Admin" | "Professor" | null>(null); // track user role - null until loaded
     const [loading, setLoading] = useState(true);
 
     // Add admin link only if user is admin 
@@ -215,8 +215,9 @@ export default function Navbar() {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                     })}
+                                   
                                 </div>
-
+                             
                                 {allLinks.map((link) => (
                                     <Link
                                         key={link.name}
@@ -231,7 +232,10 @@ export default function Navbar() {
                                         {link.name}
                                     </Link>
                                 ))}
+
+                           
                             </div>
+                             
                         </div>
                     )}
                 </div>
