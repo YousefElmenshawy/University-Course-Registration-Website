@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         // get the profile from the database
         const { data, error } = await supabaseServer
             .from("User")
-            .select("name, Role")
+            .select("Role, name, gpa, credits_earned, enrolled_courses")
             .eq("id", user.id)
             .single();
 
