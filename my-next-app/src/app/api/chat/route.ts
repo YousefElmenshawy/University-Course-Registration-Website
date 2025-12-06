@@ -77,7 +77,7 @@ export async function POST(request: Request) {
                         });
 
                         // Convert to arrays - User table stores course.id as text arrays
-                        const toNumberArray = (arr: any) => {
+                        const toNumberArray = (arr: unknown): number[] => {
                             if (!Array.isArray(arr)) return [];
                             
                             // Log raw values to debug
