@@ -9,7 +9,7 @@ interface User {
   id: string
   name: string
   Role: "Student" | "Admin" | "Professor"
-  enrolled_courses: number[] | null
+  enrolled_courses: string[] | null
   waitlisted_courses: string[] | null
 }
 
@@ -29,6 +29,11 @@ interface Course {
 }
 
 export default function AdminPanel() {
+const [waitlistModalOpen, setWaitlistModalOpen] = useState(false)
+const [waitlistCourse, setWaitlistCourse] = useState<Course | null>(null)
+const [waitlistStudents, setWaitlistStudents] = useState<User[]>([])
+const [waitlistLoading, setWaitlistLoading] = useState(false)
+
   const [users, setUsers] = useState<User[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
@@ -173,15 +178,133 @@ export default function AdminPanel() {
     }
   }
 
-  const admitFromWaitlist = async (courseId: number) => {
-    // TODO: Implement logic to admit people from waitlist
-    // This will:
-    // 1. Find users on the waitlist for this course
-    // 2. Move them to enrolled_courses
-    // 3. Update CapacityCurrent and WaitlistCurrent
-    console.log('Admitting from waitlist for course:', courseId)
-    alert('Waitlist admission logic will be implemented soon!')
+  // const admitFromWaitlist = async (courseId: number) => {
+  //   // TODO: Implement logic to admit people from waitlist
+  //   // This will:
+  //   // 1. Find users on the waitlist for this course
+  //   // 2. Move them to enrolled_courses
+  //   // 3. Update CapacityCurrent and WaitlistCurrent
+  //   console.log('Admitting from waitlist for course:', courseId)
+  //   alert('Waitlist admission logic will be implemented soon!')
+  // }
+
+
+  const openWaitlistModal = async (courseId: number) => {
+  try {
+    const course = courses.find(c => c.id === courseId)
+    if (!course) {
+      alert('Course not found.')
+      return
+    }
+
+    setWaitlistCourse(course)
+    setWaitlistModalOpen(true)
+    setWaitlistLoading(true)
+
+    const courseIdStr = String(courseId)
+
+    // Get all users who have this course in their waitlisted_courses
+    const { data, error } = await supabase
+      .from('User')
+      .select('id, name, Role, enrolled_courses, waitlisted_courses')
+      .contains('waitlisted_courses', [courseIdStr])
+
+    if (error) throw error
+
+    setWaitlistStudents(data || [])
+  } catch (err) {
+    console.error('Error loading waitlist:', err)
+    setError(
+      err instanceof Error ? err.message : 'Failed to load waitlist students'
+    )
+  } finally {
+    setWaitlistLoading(false)
   }
+}
+
+
+const admitSingleFromWaitlist = async (courseId: number, user: User) => {
+  try {
+    const course = courses.find(c => c.id === courseId)
+    if (!course) {
+      alert('Course not found.')
+      return
+    }
+
+    const seatsAvailable = course.CapacityMax - course.CapacityCurrent
+    if (seatsAvailable <= 0) {
+      alert('No free seats left in this course.')
+      return
+    }
+
+    const courseIdStr = String(courseId)
+
+    const enrolled = (user.enrolled_courses ?? []).slice()
+    const waitlisted = (user.waitlisted_courses ?? []).slice()
+
+    if (!enrolled.includes(courseIdStr)) {
+      enrolled.push(courseIdStr)
+    }
+    const newWaitlisted = waitlisted.filter(id => id !== courseIdStr)
+
+    // 1) Update user
+    const { error: userError } = await supabase
+      .from('User')
+      .update({
+        enrolled_courses: enrolled,
+        waitlisted_courses: newWaitlisted,
+      })
+      .eq('id', user.id)
+
+    if (userError) throw userError
+
+    // 2) Update course counts
+    const { error: courseError } = await supabase
+      .from('Courses')
+      .update({
+        CapacityCurrent: course.CapacityCurrent + 1,
+        WaitlistCurrent: Math.max(course.WaitlistCurrent - 1, 0),
+      })
+      .eq('id', courseId)
+
+    if (courseError) throw courseError
+
+    // 3) Update local state (users, courses, modal list)
+    setUsers(prev =>
+      prev.map(u =>
+        u.id === user.id
+          ? { ...u, enrolled_courses: enrolled, waitlisted_courses: newWaitlisted }
+          : u
+      )
+    )
+
+    setCourses(prev =>
+      prev.map(c =>
+        c.id === courseId
+          ? {
+              ...c,
+              CapacityCurrent: c.CapacityCurrent + 1,
+              WaitlistCurrent: Math.max(c.WaitlistCurrent - 1, 0),
+            }
+          : c
+      )
+    )
+
+    setWaitlistStudents(prev => prev.filter(u => u.id !== user.id))
+
+    // If nobody left, auto-close modal
+    if (waitlistStudents.length === 1) {
+      setWaitlistModalOpen(false)
+      setWaitlistCourse(null)
+    }
+  } catch (err) {
+    console.error('Error admitting from waitlist:', err)
+    setError(
+      err instanceof Error ? err.message : 'Failed to admit student from waitlist'
+    )
+  }
+}
+
 
   const startEditCourse = (course: Course) => {
     setEditingCourse(course)
@@ -249,7 +372,9 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="bg-white border border-gray-300 rounded mb-6 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Panel</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Admin Panel
+          </h1>
           <p className="text-sm text-gray-600">
             Manage users and courses in the system.
           </p>
@@ -291,7 +416,9 @@ export default function AdminPanel() {
             {activeTab === 'courses' && (
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Course Management</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Course Management
+                  </h2>
                   <button
                     onClick={() => setShowAddCourseForm(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
@@ -330,20 +457,23 @@ export default function AdminPanel() {
                   <CourseForm
                     course={editingCourse}
                     onSubmit={updateCourse}
-                    onChange={(updatedCourse) => setEditingCourse(updatedCourse as Course)}
+                    onChange={updatedCourse =>
+                      setEditingCourse(updatedCourse as Course)
+                    }
                     onCancel={cancelEdit}
                     isEdit
                   />
                 )}
 
+                {/* Course Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.map((course) => (
+                  {courses.map(course => (
                     <CourseCard
                       key={course.id}
                       course={course}
                       onEdit={startEditCourse}
                       onDelete={deleteCourse}
-                      onAdmitWaitlist={admitFromWaitlist}
+                      onAdmitWaitlist={openWaitlistModal}
                     />
                   ))}
                 </div>
@@ -352,6 +482,63 @@ export default function AdminPanel() {
           </div>
         </div>
       </div>
+
+      {/* WAITLIST MODAL */}
+      {waitlistModalOpen && waitlistCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">
+                Waitlist – {waitlistCourse.Name}
+              </h3>
+              <button
+                onClick={() => {
+                  setWaitlistModalOpen(false)
+                  setWaitlistCourse(null)
+                  setWaitlistStudents([])
+                }}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {waitlistLoading ? (
+              <div className="py-4 text-sm text-gray-600">
+                Loading waitlist…
+              </div>
+            ) : waitlistStudents.length === 0 ? (
+              <div className="py-4 text-sm text-gray-600">
+                There are no students on the waitlist for this course.
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {waitlistStudents.map(student => (
+                  <div
+                    key={student.id}
+                    className="flex items-center justify-between border rounded px-3 py-2"
+                  >
+                    <div>
+                      <div className="font-medium">{student.name}</div>
+                      <div className="text-xs text-gray-500">
+                        ID: {student.id.slice(0, 8)}…
+                      </div>
+                    </div>
+                    <button
+                      onClick={() =>
+                        admitSingleFromWaitlist(waitlistCourse.id, student)
+                      }
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded"
+                    >
+                      Admit
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
