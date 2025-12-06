@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/lib/databaseClient";
 
 interface Message {
     role: "user" | "assistant";
@@ -37,6 +38,7 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom when new messages arrive
@@ -58,6 +60,10 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
         setIsLoading(true);
 
         try {
+            // Get authentication token
+            const { data: sessionData } = await supabase.auth.getSession();
+            const token = sessionData?.session?.access_token;
+
             // Call our API route which handles Gemini
             const response = await fetch("/api/chat", {
                 method: "POST",
@@ -66,7 +72,8 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
                 },
                 body: JSON.stringify({
                     message: input,
-                    studentData: studentData
+                    token: token, // Send auth token to fetch real data
+                    studentData: studentData // Keep as fallback
                 }),
             });
 
@@ -77,10 +84,17 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
             }
 
             type AIContent = { type: string; text?: string };
-            type AIResponse = { content: AIContent[] };
+            type AIResponse = { content: AIContent[]; offline?: boolean };
 
-            const data = await response.json() as AIResponse;
-            const assistantContent = data.content
+            const responseData = await response.json() as AIResponse;
+            
+            // Update offline status based on API response
+            if (responseData.offline) {
+                setIsOffline(true);
+            } else {
+                setIsOffline(false);
+            }
+            const assistantContent = responseData.content
                 .filter((item: AIContent) => item.type === "text")
                 .map((item: AIContent) => item.text || "")
                 .join("\n");
@@ -124,7 +138,7 @@ export default function AI_Assitant({ isOpen, onClose, studentData }: AI_Assitan
                     </div>
                     <div>
                         <h3 className="font-bold text-sm">RegIx Assistant</h3>
-                        <p className="text-xs text-gray-300">Online</p>
+                        <p className="text-xs text-gray-300">{isOffline ? "Offline" : "Online"}</p>
                     </div>
                 </div>
                 <button

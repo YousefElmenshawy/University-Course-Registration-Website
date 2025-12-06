@@ -153,19 +153,16 @@ export default function Navbar() {
 
                             ))}
 
-                            <AI_Assistant   //currently working with dummy data
+                            <AI_Assistant
                                 isOpen={isOpen}
                                 onClose={() => setIsOpen(false)}
+                                /* Backend will fetch real data via token; this is just a minimal fallback */
                                 studentData={{
                                     name: studentName,
-                                    enrolledCourses: ["CSCE3304", "MATH2313", "ENGL1301"],
-                                    gpa: 3.8,
-                                    credits: 45,
-                                    pastCourses: [
-                                        { id: 1, Name: "Introduction to Programming", Code: "CS101", CourseID: "CSCE1010", CRN: 12345 },
-                                        { id: 2, Name: "Data Structures", Code: "CS201", CourseID: "CSCE2010", CRN: 12346 },
-                                        { id: 3, Name: "Calculus I", Code: "MATH101", CourseID: "MATH1401", CRN: 12347 },
-                                    ]
+                                    enrolledCourses: [],
+                                    gpa: undefined,
+                                    credits: 0,
+                                    pastCourses: []
                                 }}
                             />
                             {!isOpen && <ChatButton onClickAction={() => setIsOpen(true)} />}

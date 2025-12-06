@@ -75,7 +75,7 @@ export default function LoginPage() {
                         <Button label="Sign In" type="submit" />
                     </div>
                 </form>
-                
+
             </AuthCard>
         </div>
     );
